@@ -5,7 +5,10 @@
       "mcp__promptx-cli__promptx_action",
       "mcp__promptx-cli__promptx_recall",
       "mcp__promptx-cli__promptx_remember",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(gh api:*)",
+      "Bash(gh repo view:*)",
+      "Bash(cat:*)"
     ],
     "defaultMode": "acceptEdits"
   }
