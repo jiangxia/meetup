@@ -1,120 +1,141 @@
-# AI酒馆项目 - 黑客松版任务管理
+# AI酒馆 MVP 🍺
 
-## 项目概述
-基于PromptX协议的AI酒馆演示系统，**黑客松48小时版本**，专注核心演示功能。
+基于PromptX的AI酒馆演示系统，**极简MVP版本**，专注核心价值验证。
 
-## 🎯 黑客松MVP目标
-展示PromptX的**记忆能力**和**角色概念**，5-8分钟演示流程完整。
+## 🎯 MVP核心目标
+验证3个关键假设，5-8分钟演示流程：
+1. **用户喜欢角色化AI对话吗？**
+2. **AI记忆功能是否有吸引力？**  
+3. **AI酒馆概念是否有趣？**
 
-## Epic列表 (黑客松简化版)
+## 🚀 快速开始
 
-### Day 1: 基础交互 (24小时)
-1. **[Epic 1: 角色选择界面](./Epic1_角色选择界面/)** - 选择调酒师类型，调用promptx_action激活
-2. **[Epic 2: 基础对话系统](./Epic2_基础对话系统/)** - 聊天界面 + LLM API + promptx工具集成
+### 前端启动
+```bash
+cd frontend/
+# 直接打开 index.html 或
+npm start
+```
 
-### Day 2: 记忆演示 (24小时)  
-3. **[Epic 3: PromptX记忆演示](./Epic3_PromptX记忆演示/)** - 使用promptx_remember/recall展示记忆能力
-4. **[Epic 4: 简化角色推荐](./Epic4_简化角色推荐/)** - 关键词匹配推荐PromptX角色
+### 后端启动  
+```bash
+cd backend/
+npm install
+npm start
+# 访问 http://localhost:3001
+```
 
-## 📊 任务统计 (LangChain超级优化版)
+## 📁 项目结构 (极简版)
 
-| Epic | Story数量 | 预估工时 | 复杂度 | Day | LangChain超级优化 |
-|------|-----------|----------|--------|-----|-----------------|
-| Epic 1 | 2 | 5小时 | 低 | Day 1 | HTML/CSS简化 |
-| Epic 2 | 3 | 7小时 | 低 | Day 1 | LangChain一行代码AI集成 ⭐ |
-| Epic 3 | 2 | 4小时 | 低 | Day 2 | LangChain双重记忆系统 ⭐ |
-| Epic 4 | 2 | 4小时 | 低 | Day 2 | LangChain Agent框架 |
-| 整合测试 | - | 2小时 | 低 | - | LangChain简化调试 |
-| **总计** | **9** | **22小时** | - | **48h** | **节省28小时！(56%)** |
+```
+ai-tavern-mvp/
+├── frontend/
+│   ├── index.html          # 单页面应用
+│   ├── style.css           # 酒馆主题样式
+│   ├── app.js              # 所有前端逻辑
+│   └── config.js           # API配置
+└── backend/
+    ├── server.js           # 单文件服务器
+    ├── package.json        # 极简依赖
+    ├── .env                # API密钥
+    └── README.md           # 启动说明
+```
 
-> 🚀 **LangChain革命性优化**: 原计划50小时 → 现在22小时，为黑客松腾出26小时缓冲时间！
-
-## 🔧 技术栈 (LangChain优化版)
+## ⚡ 技术选型 (专业级MVP)
 
 ```javascript
-const TechStack = {
-  前端: "HTML5 + CSS3 + Vanilla JavaScript (酒馆主题)",
-  后端: "Node.js + Express + LangChain (AI框架)",
-  AI集成: "LangChain + OpenAI GPT-4o-mini (一行代码集成)",
-  记忆系统: "LangChain Memory + PromptX MCP工具 (双重记忆)",
-  Agent系统: "LangChain Agent + PromptX角色 (完美融合)",
-  存储: "LocalStorage + LangChain Memory + PromptX记忆",
-  部署: "本地开发 (黑客松演示版)"
+const OptimizedTechStack = {
+  前端: "HTML5 + TailwindCSS + Vanilla JS",
+  后端: "Node.js + Express + LangChain.js",
+  AI框架: "LangChain (ConversationChain + BufferMemory)",
+  记忆系统: "LangChain Memory + PromptX MCP双重记忆",
+  流式响应: "Server-Sent Events + 实时打字效果",
+  部署: "本地运行 + Docker容器化"
 }
 ```
 
-## 🚀 核心演示流程
+## 📋 MVP演示流程
 
-### 演示脚本 (5-8分钟)
-1. **角色选择** (1分钟)
-   - 展示温柔型Aria vs 理性型Morgan
-   - 选择后调用promptx_action激活角色
+**5分钟演示脚本**：
+1. **角色选择** (1分钟) - 选择Aria调酒师
+2. **基础对话** (2分钟) - 表达工作压力
+3. **记忆演示** (2分钟) - AI记住并回忆用户情况
 
-2. **首次对话** (2分钟)
-   - 用户: "今天工作压力很大，很累"
-   - AI: 根据角色风格回应，自动调用promptx_remember保存
+## 🎯 MVP验证指标
 
-3. **记忆回调** (2分钟)
-   - 刷新页面或切换会话
-   - AI主动调用promptx_recall，提及之前的"压力大"
+### 核心假设验证
+- **假设1**: 观众能感受角色差异
+- **假设2**: 记忆演示获得"哇"反应  
+- **假设3**: 有人询问如何使用
 
-4. **角色推荐** (2分钟)
-   - AI基于对话内容推荐PromptX角色
-   - 展示推荐: Sean(决策)、Luna(减压)等
+### 开发成功标准
+- **总开发时间**: ≤ 12小时 (前端5.5h + 后端6.5h)
+- **技术栈升级**: LangChain + TailwindCSS专业框架
+- **演示效果**: 流式响应 + 双重记忆可视化
+- **视觉质量**: 酒馆主题专业设计
 
-## ⚡ 与完整版的区别
+详见：[MVP成功指标](./AI_Tavern_Tasks/MVP_Success_Metrics.md)
 
-| 功能 | 完整版 | 黑客松版 |
-|------|--------|----------|
-| 记忆系统 | 复杂API集成 | **直接用PromptX工具** ✅ |
-| 角色推荐 | 智能算法 | **简单关键词匹配** ✅ |
-| 导出功能 | PDF/PNG导出 | **界面展示即可** ✅ |
-| 情绪识别 | 独立模块 | **PromptX角色内置** ✅ |
-| 角色管理 | 复杂配置 | **hardcode两个角色** ✅ |
+## 📁 任务文档 (已升级为专业版)
 
-## 🎯 成功标准
+### 详细任务分解
+- **前端详细任务**: [TailwindCSS前端详细任务分解](./AI_Tavern_Tasks/Frontend_Tasks/Epic0_前端基础设施/TailwindCSS_Frontend_Tasks.md)
+- **后端详细任务**: [LangChain后端详细任务分解](./AI_Tavern_Tasks/Backend_Tasks/Epic0_后端基础设施/LangChain_Backend_Tasks.md)
 
-### 必须完成 (及格)
-- ✅ 用户可以选择调酒师角色
-- ✅ 基础对话功能正常
-- ✅ AI能"记住"用户说过的话
-- ✅ 可以推荐PromptX角色
+### 概览文档
+- **前端MVP概览**: [Frontend MVP Task](./AI_Tavern_Tasks/Frontend_Tasks/Epic0_前端基础设施/Story0.1_前端项目搭建/MVP_Task.md)
+- **后端MVP概览**: [Backend MVP Updated](./AI_Tavern_Tasks/Backend_Tasks/Epic0_后端基础设施/MVP_Backend_Updated.md)
+- **开发计划**: [开发计划和优先级](./AI_Tavern_Tasks/开发计划和优先级.md)
+- **演示检查清单**: [演示检查清单](./AI_Tavern_Tasks/演示检查清单.md)
 
-### 加分项 (优秀)
-- ✅ 界面美观，酒馆氛围浓厚
-- ✅ 两个角色风格差异明显
-- ✅ 记忆回调自然贴切
-- ✅ 演示流程流畅完整
+## ⚡ MVP vs 完整版
 
-## 🔥 关键风险控制
+| 功能 | 专业版MVP | 说明 |
+|------|----------|------|
+| 前端 | TailwindCSS组件化 | 专业视觉 + 响应式 |
+| 后端 | LangChain框架 | 流式响应 + 双重记忆 |
+| 记忆 | LangChain + PromptX | 对话级 + 长期记忆 |
+| 角色 | 动态激活3个 | MCP工具激活 |
+| 演示 | 可视化记忆展示 | 震撼演示效果 |
 
-### 最大风险: PromptX工具调用
-- **风险**: MCP工具调用可能复杂
-- **应对**: 提前验证promptx_action等工具，准备Mock数据降级
+## 🚀 专业级开发
 
-### 次要风险: LLM API稳定性  
-- **风险**: API调用失败或限流
-- **应对**: 准备多个API key，或本地模型降级
+```bash
+# 1. 前端开发 (5.5小时)
+# TailwindCSS + 酒馆主题 + 组件化架构
+mkdir frontend && cd frontend
+# 按照 TailwindCSS_Frontend_Tasks.md 执行
 
-## 📝 开发检查清单
+# 2. 后端开发 (6.5小时)  
+mkdir backend && cd backend
+npm init -y
+npm install langchain @langchain/openai express cors helmet dotenv
+# 按照 LangChain_Backend_Tasks.md 执行
 
-### Day 1 检查点
-- [ ] 角色选择界面可用
-- [ ] 基础对话正常
-- [ ] PromptX工具调用成功
+# 3. 集成测试 (缓冲时间)
+# 前后端联调 + 演示准备
 
-### Day 2 检查点  
-- [ ] 记忆保存和回调演示
-- [ ] 角色推荐功能
-- [ ] 完整演示流程通畅
+# 总计：12小时完成专业级MVP！
+```
 
-### 最终交付
-- [ ] 5-8分钟演示准备就绪
-- [ ] 代码可部署运行
-- [ ] 展示PromptX核心价值
+## 🎯 技术升级价值
+
+### 开发效率提升
+- **LangChain框架**: 节省4小时AI开发时间
+- **TailwindCSS框架**: 节省2小时UI开发时间  
+- **专业工具链**: 减少调试和维护成本
+
+### 演示效果增强
+- **流式响应**: 实时打字效果，用户体验专业
+- **双重记忆可视化**: 震撼的技术演示效果
+- **酒馆主题设计**: 专业级视觉呈现
+
+### 技术说服力
+- **成熟框架**: 展示技术选型的专业性
+- **架构设计**: 体现工程化思维
+- **可扩展性**: 为后续发展奠定基础
 
 ---
 
-**项目负责人**: Sean (姜山)  
-**开发模式**: 黑客松48小时冲刺  
-**交付目标**: PromptX能力演示 + 技术可行性验证
+**升级原则**: 专业工具 + 震撼演示 + 高效开发  
+**开发模式**: 框架驱动的专业级原型
