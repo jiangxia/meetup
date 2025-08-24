@@ -140,10 +140,10 @@ backend/
 │   ├── auth.js           # 认证中间件
 │   ├── rateLimit.js      # 限流中间件
 │   └── validation.js     # 数据验证
-├── services/
-│   ├── llmService.js     # LLM服务
-│   ├── promptxService.js # PromptX服务
-│   └── logService.js     # 日志服务
+├── lib/
+│   ├── openai-client.js  # 原生OpenAI客户端
+│   ├── mcp-client.js     # MCP客户端
+│   └── promptx-service.js # PromptX服务封装
 ├── utils/
 │   ├── errors.js         # 错误处理工具
 │   ├── response.js       # 响应格式化
@@ -161,8 +161,9 @@ FRONTEND_URL=http://localhost:3000
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-4o-mini
 
-# PromptX配置
-PROMPTX_SERVER_URL=http://localhost:3002
+# MCP配置
+MCP_TRANSPORT=stdio
+MCP_SERVER_COMMAND=promptx mcp
 ```
 
 ## 验收标准

@@ -24,52 +24,47 @@
 
 ## 具体任务分解
 
-### Task 3.1.1: LangChain双重记忆系统集成
-**预估时间**: 1小时 (LangChain + PromptX超级简化！)
+### Task 3.1.1: MCP Client + PromptX记忆系统集成
+**预估时间**: 1小时 (原生实现 + MCP超级简化！)
 **具体内容**:
-- LangChain自动处理会话内记忆（BufferMemory）
-- PromptX处理跨会话长期记忆
+- 原生ConversationManager处理会话内记忆
+- MCP Client调用PromptX处理跨会话长期记忆
 - 双重记忆无缝集成
-- 一键保存重要信息到PromptX
+- 通过MCP协议保存重要信息到PromptX
 
-**LangChain双重记忆实现**:
+**原生+MCP双重记忆实现**:
 ```javascript
-// server.js - 双重记忆版本
-const { ConversationChain } = require('langchain/chains');
-const { BufferMemory, ConversationSummaryMemory } = require('langchain/memory');
-const { ChatOpenAI } = require('@langchain/openai');
+// server.js - 原生+MCP双重记忆版本
+const express = require('express');
+const { OpenAIClient } = require('./lib/openai-client');
+const { NativeMCPClient } = require('./lib/mcp-client');
+const { ConversationManager } = require('./lib/conversation-manager');
 
-// LangChain自动记忆 - 会话内记忆
-function createMemoryChain(roleId) {
-  const llm = new ChatOpenAI({ modelName: 'gpt-4o-mini' });
-  
-  // 会话记忆：自动记住对话历史
-  const memory = new BufferMemory({
-    memoryKey: 'history',
-    inputKey: 'input',
-    outputKey: 'response',
+// 原生会话记忆管理器
+function createConversationManager() {
+  return new ConversationManager({
+    maxConversations: 1000,
+    sessionTimeout: 30 * 60 * 1000, // 30分钟
+    maxContextLength: 4000 // tokens
   });
-  
-  return new ConversationChain({ llm, memory });
 }
 
-// PromptX长期记忆 - 跨会话记忆
-async function saveToPromptX(content, role) {
+// MCP Client长期记忆 - 跨会话记忆
+async function saveToPromptX(content, role, sessionId = 'default') {
   // 判断是否值得长期保存
   if (isImportantMemory(content)) {
     try {
-      await mcp__promptx_local__promptx_action({
-        action: 'remember',
+      await mcpClient.promptxRemember({
         content: content,
         metadata: {
           role: role,
           source: 'ai-tavern',
           timestamp: Date.now()
         }
-      });
+      }, sessionId);
       console.log('💾 重要记忆已保存到PromptX');
     } catch (error) {
-      console.warn('PromptX记忆保存失败:', error);
+      console.warn('MCP PromptX记忆保存失败:', error);
     }
   }
 }
@@ -86,51 +81,90 @@ function isImportantMemory(content) {
   );
 }
 
-// 聊天API - 双重记忆版本
-app.post('/api/chat', async (req, res) => {
+// 聊天API - 原生+MCP双重记忆版本
+app.post('/api/chat/:roleId', async (req, res) => {
   try {
-    const { message, role = 'aria' } = req.body;
+    const { roleId } = req.params;
+    const { message, sessionId = 'default' } = req.body;
     
-    // 1. LangChain处理会话记忆和回复
-    const chain = roleChains[role] || createMemoryChain(role);
-    const response = await chain.call({ input: message });
+    // 1. 获取或创建会话(原生记忆管理)
+    let conversation = conversationManager.getConversation(sessionId);
+    if (!conversation) {
+      conversation = conversationManager.createConversation(roleId);
+    }
     
-    // 2. 异步保存重要信息到PromptX长期记忆
-    saveToPromptX(message, role).catch(console.error);
+    // 2. 通过MCP Client回忆记忆
+    let memories = [];
+    if (mcpClient) {
+      memories = await mcpClient.promptxRecall(message, sessionId);
+    }
     
-    res.json({ message: response.response });
+    // 3. 通过MCP Client激活角色
+    let roleResponse = null;
+    if (mcpClient) {
+      roleResponse = await mcpClient.promptxAction(roleId, message);
+    }
+    
+    // 4. 原生构建消息上下文并调用OpenAI
+    const messages = buildMessageContext(roleId, message, conversation.messages, memories);
+    const response = await openaiClient.chat(messages);
+    const aiResponse = response.choices[0].message.content;
+    
+    // 5. 保存对话到本地记忆
+    conversationManager.addMessage(conversation.id, message, 'user');
+    conversationManager.addMessage(conversation.id, aiResponse, 'assistant');
+    
+    // 6. 异步保存重要信息到MCP PromptX长期记忆
+    saveToPromptX(message, roleId, sessionId).catch(console.error);
+    
+    res.json({ 
+      success: true,
+      data: { 
+        message: aiResponse, 
+        role: roleId,
+        conversationId: conversation.id
+      }
+    });
   } catch (error) {
-    res.status(500).json({ error: '对话服务暂时不可用' });
+    res.status(500).json({ 
+      success: false,
+      error: '对话服务暂时不可用' 
+    });
   }
 });
 
-// 会话开始时回调PromptX长期记忆
+// 会话开始时通过MCP Client回调PromptX长期记忆
 app.post('/api/memory/recall', async (req, res) => {
   try {
-    const { role } = req.body;
+    const { role, sessionId = 'default' } = req.body;
     
-    const memories = await mcp__promptx_local__promptx_action({
-      action: 'recall',
-      query: `${role} ai-tavern memories`,
-      limit: 5
+    const memories = await mcpClient.promptxRecall(
+      `${role} ai-tavern memories`, 
+      sessionId
+    );
+    
+    res.json({ 
+      success: true,
+      data: { memories: memories || [] }
     });
-    
-    res.json({ memories: memories.data || [] });
   } catch (error) {
-    res.json({ memories: [] });
+    res.json({ 
+      success: false,
+      data: { memories: [] }
+    });
   }
 });
 ```
 
 **记忆层次设计**:
 ```
-🧠 双重记忆架构
-├─ 会话记忆 (LangChain BufferMemory)
-│  ├─ 当前对话上下文 ✅ 自动管理
-│  └─ 实时对话连贯性 ✅ 框架处理
-└─ 长期记忆 (PromptX)
-   ├─ 用户重要信息 ✅ 智能筛选保存
-   └─ 跨会话记忆回调 ✅ 主动提及
+🧠 原生+MCP双重记忆架构
+├─ 会话记忆 (原生ConversationManager)
+│  ├─ 当前对话上下文 ✅ 原生Map管理
+│  └─ 实时对话连贯性 ✅ 完全可控
+└─ 长期记忆 (MCP Client -> PromptX)
+   ├─ 用户重要信息 ✅ MCP标准化保存
+   └─ 跨会话记忆回调 ✅ JSON-RPC 2.0调用
 ```
 
 ### Task 3.1.2: 智能记忆触发机制
