@@ -7,10 +7,18 @@ backend/
 scripts/
 docs/
 
+# 🔒 敏感配置保护 (新增)
+.env
+.env.local
+.env.production
+**/node_modules/
+
 # 保留的文件和目录（通过 ! 语法强制包含）
 !.promptx/
 !README.md
 !AI_TAVERN_DEVELOPMENT_GUIDE.md
+!CONFIG_GUIDE.md
+!.env.example
 !.gitignore
 !docs/MCP_INTEGRATION.md
 

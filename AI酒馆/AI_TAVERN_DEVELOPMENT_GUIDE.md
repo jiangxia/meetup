@@ -57,21 +57,23 @@ AI-Tavern/
 
 ## 🚀 快速开始
 
+**⭐ 首次使用？请先查看详细配置指南：[CONFIG_GUIDE.md](./CONFIG_GUIDE.md)**
+
 ### 1. 环境准备
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/AI-Tavern.git
-cd AI-Tavern
+git clone https://github.com/jiangxia/meetup.git
+cd meetup/AI酒馆
 
 # 安装PromptX（如果未安装）
 npm install -g @promptx/cli
 
 # 后端环境准备
 cd backend
-npm install
+npm install express cors dotenv
 cp .env.example .env
-# 编辑.env文件，设置OPENAI_API_KEY
+# 编辑.env文件，设置OPENAI_API_KEY (详见CONFIG_GUIDE.md)
 
 # 前端环境准备（可选，使用静态服务器）
 cd ../frontend
