@@ -8,7 +8,9 @@
       "Bash(git checkout:*)",
       "Bash(gh api:*)",
       "Bash(gh repo view:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "mcp__promptx-cli__promptx_init",
+      "mcp__promptx-cli__promptx_welcome"
     ],
     "defaultMode": "acceptEdits"
   }

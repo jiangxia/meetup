@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI酒馆 - 与AI调酒师对话</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 角色选择页面 -->
+        <div class="page role-selection-page" id="roleSelectionPage">
+            <div class="page-content">
+                <header class="main-header">
+                    <h1 class="app-title">AI 酒馆</h1>
+                    <p class="app-subtitle">欢迎来到 AI 酒馆，这里有不同性格的调酒师等待与您交流。他们会记住您的情绪和偏好，为您提供温暖的陪伴。</p>
+                </header>
+
+                <section class="role-selection-section">
+                    <h2 class="section-title">选择您的调酒师</h2>
+                    <p class="section-subtitle">每位调酒师都有独特的性格，选择最适合您当前心情的那一位</p>
+                    
+                    <div class="role-cards-grid">
+                        <div class="role-card" data-role="xiaoyu">
+                            <div class="role-card-header">
+                                <div class="role-icon">💗</div>
+                            </div>
+                            <div class="role-card-body">
+                                <h3 class="role-name">小雨</h3>
+                                <div class="role-badge warm">温柔型</div>
+                                <p class="role-description">温暖如春雨，善于倾听和共情，会用温暖的话语抚慰您的心灵</p>
+                                <div class="role-tags">
+                                    <span class="role-tag">善解人意</span>
+                                    <span class="role-tag">温暖陪伴</span>
+                                    <span class="role-tag">情感支持</span>
+                                </div>
+                            </div>
+                            <div class="role-card-footer">
+                                <button class="start-chat-button">💬 开始对话</button>
+                            </div>
+                        </div>
+
+                        <div class="role-card" data-role="mingxuan">
+                            <div class="role-card-header">
+                                <div class="role-icon">☮️</div>
+                            </div>
+                            <div class="role-card-body">
+                                <h3 class="role-name">明轩</h3>
+                                <div class="role-badge rational">理性型</div>
+                                <p class="role-description">冷静理性，擅长分析问题，会用逻辑思维帮您梳理思路和您理解</p>
+                                <div class="role-tags">
+                                    <span class="role-tag">逻辑清晰</span>
+                                    <span class="role-tag">客观分析</span>
+                                    <span class="role-tag">解决方案</span>
+                                </div>
+                            </div>
+                            <div class="role-card-footer">
+                                <button class="start-chat-button">💬 开始对话</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="promptx-notice">
+                        <div class="notice-icon">✨</div>
+                        <p class="notice-text">我们的调酒师会记住您的情绪和偏好，在下次见面时主动关心您的近况</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- 对话页面 -->
+        <div class="page chat-page" id="chatPage" style="display: none;">
+            <div class="page-content">
+                <header class="chat-header">
+                    <div class="header-left">
+                        <button class="back-button" id="backButton">←</button>
+                        <div class="current-role-info">
+                            <div class="role-avatar" id="currentRoleAvatar">💗</div>
+                            <div class="role-details">
+                                <h3 class="role-name" id="currentRoleName">小雨</h3>
+                                <div class="role-status">
+                                    <span class="role-badge warm" id="currentRoleBadge">温柔型</span>
+                                    <span class="memory-indicator">✨ 记忆功能已启用</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <button class="header-action-btn" id="memoryButton">
+                            <span class="btn-icon">🧠</span>
+                            <span class="btn-text">记忆</span>
+                        </button>
+                        <button class="header-action-btn" id="exportButton">
+                            <span class="btn-icon">↓</span>
+                            <span class="btn-text">导出</span>
+                        </button>
+                    </div>
+                </header>
+
+                <main class="chat-main">
+                    <div class="messages-area" id="messagesArea">
+                        <!-- 消息将通过JavaScript动态添加 -->
+                    </div>
+                </main>
+
+                <footer class="chat-footer">
+                    <div class="input-section">
+                        <div class="input-wrapper">
+                            <input type="text" class="message-input" id="messageInput" placeholder="输入您想说的话..." />
+                            <button class="send-button" id="sendButton">→</button>
+                        </div>
+                        <div class="input-hint" id="inputHint">
+                            小雨 会记住您的情绪和偏好，为您提供个性化的回应
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- PromptX状态指示器 -->
+    <div class="promptx-status-indicator" id="promptxStatus">
+        <div class="status-dot"></div>
+        <span class="status-text">PromptX 未连接</span>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/roles.js"></script>
+    <script src="js/promptx.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

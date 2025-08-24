@@ -1,0 +1,49 @@
+{
+  "currentState": "initial",
+  "stateHistory": [
+    {
+      "from": "initial",
+      "command": "init",
+      "timestamp": "2025-08-23T09:44:19.904Z",
+      "args": [
+        {
+          "workingDirectory": "/Users/huangyanxiang/Desktop/黄明易/1、项目/开发/meetup",
+          "ideType": "claude"
+        }
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "welcome",
+      "timestamp": "2025-08-23T09:44:24.591Z",
+      "args": []
+    },
+    {
+      "from": "initial",
+      "command": "action",
+      "timestamp": "2025-08-23T09:44:32.489Z",
+      "args": [
+        "sean"
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "remember",
+      "timestamp": "2025-08-23T09:48:17.133Z",
+      "args": [
+        {
+          "role": "sean",
+          "engrams": [
+            {
+              "content": "AI酒馆黑客松比赛时间是3小时，不是48小时，需要大幅调整开发计划和MVP范围",
+              "schema": "AI酒馆\n黑客松\n3小时\n时间限制\n开发计划\nMVP范围",
+              "strength": 0.9,
+              "type": "ATOMIC"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "lastUpdated": "2025-08-23T09:48:17.158Z"
+}
