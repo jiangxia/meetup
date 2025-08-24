@@ -1,0 +1,30 @@
+# AI酒馆项目 .gitignore
+# 只保留文档和角色文件，排除所有代码文件
+
+# 排除所有代码实现
+frontend/
+backend/
+scripts/
+docs/
+
+# 保留的文件和目录（通过 ! 语法强制包含）
+!.promptx/
+!README.md
+!AI_TAVERN_DEVELOPMENT_GUIDE.md
+!.gitignore
+!docs/MCP_INTEGRATION.md
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.bak
