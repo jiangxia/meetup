@@ -21,6 +21,11 @@ docs/
 !.env.example
 !.gitignore
 !docs/MCP_INTEGRATION.md
+!frontend/config.html
+!frontend/index.html
+!frontend/assets/js/config.js
+!frontend/assets/js/app.js
+!backend/lib/config-manager.js
 
 # 系统文件
 .DS_Store

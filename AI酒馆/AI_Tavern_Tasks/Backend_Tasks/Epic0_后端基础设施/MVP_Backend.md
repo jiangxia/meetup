@@ -219,12 +219,13 @@ class OpenAIClient {
 module.exports = { OpenAIClient };
 ```
 
-**server.js (纯原生MVP核心)**:
+**server.js (纯原生MVP核心 + 配置管理)**:
 ```javascript
 const express = require('express');
 const cors = require('cors');
 const { NativeMCPClient } = require('./lib/mcp-client');
 const { OpenAIClient } = require('./lib/openai-client');
+const { ConfigManager } = require('./lib/config-manager');
 require('dotenv').config();
 
 const app = express();
@@ -233,6 +234,7 @@ const PORT = process.env.PORT || 3001;
 // 全局服务实例
 let mcpClient = null;
 let openaiClient = null;
+let configManager = null;
 
 // 中间件
 app.use(cors());
@@ -241,12 +243,16 @@ app.use(express.json());
 // ===== 初始化服务 =====
 async function initializeServices() {
   try {
+    // 初始化配置管理器
+    configManager = new ConfigManager();
+    console.log('✅ Config Manager initialized');
+    
     // 初始化 MCP Client
     mcpClient = new NativeMCPClient();
     await mcpClient.connect();
     
     // 初始化 OpenAI Client
-    if (process.env.OPENAI_API_KEY) {
+    if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here') {
       openaiClient = new OpenAIClient(process.env.OPENAI_API_KEY);
       console.log('✅ OpenAI Client initialized');
     } else {
@@ -486,6 +492,160 @@ app.post('/api/mcp/test', async (req, res) => {
     
   } catch (error) {
     console.error('❌ MCP test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ===== 配置管理API =====
+
+// 5. 获取当前配置
+app.get('/api/config', async (req, res) => {
+  try {
+    if (!configManager) {
+      return res.status(503).json({
+        success: false,
+        error: 'Config manager not initialized'
+      });
+    }
+    
+    const config = configManager.getCurrentConfig();
+    const stats = configManager.getConfigStats();
+    
+    res.json({
+      success: true,
+      data: {
+        config: config,
+        stats: stats
+      }
+    });
+  } catch (error) {
+    console.error('❌ Get config failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// 6. 更新OpenAI配置
+app.post('/api/config/openai', async (req, res) => {
+  try {
+    const { apiKey, model } = req.body;
+    
+    if (!configManager) {
+      return res.status(503).json({
+        success: false,
+        error: 'Config manager not initialized'
+      });
+    }
+    
+    configManager.updateOpenAIConfig(apiKey, model);
+    
+    // 重新初始化OpenAI客户端
+    if (apiKey && apiKey !== 'your_openai_api_key_here') {
+      openaiClient = new OpenAIClient(apiKey);
+    }
+    
+    res.json({
+      success: true,
+      message: 'OpenAI configuration updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Update OpenAI config failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// 7. 更新MCP配置
+app.post('/api/config/mcp', async (req, res) => {
+  try {
+    const { transport, command, timeout } = req.body;
+    
+    if (!configManager) {
+      return res.status(503).json({
+        success: false,
+        error: 'Config manager not initialized'
+      });
+    }
+    
+    configManager.updateMCPConfig(transport, command, timeout);
+    
+    res.json({
+      success: true,
+      message: 'MCP configuration updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Update MCP config failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// 8. 更新高级配置
+app.post('/api/config/advanced', async (req, res) => {
+  try {
+    const { server, session, debug } = req.body;
+    
+    if (!configManager) {
+      return res.status(503).json({
+        success: false,
+        error: 'Config manager not initialized'
+      });
+    }
+    
+    configManager.updateAdvancedConfig(server, session, debug);
+    
+    res.json({
+      success: true,
+      message: 'Advanced configuration updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Update advanced config failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// 9. 服务重启
+app.post('/api/admin/restart', async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      message: 'Restart request received, service will restart in 3 seconds...'
+    });
+    
+    // 3秒后重启
+    setTimeout(async () => {
+      console.log('🔄 Restarting services...');
+      
+      // 断开现有连接
+      if (mcpClient) {
+        await mcpClient.disconnect();
+      }
+      
+      // 重新加载配置
+      if (configManager) {
+        configManager.loadConfig();
+      }
+      
+      // 重新初始化服务
+      await initializeServices();
+      
+      console.log('✅ Services restarted successfully');
+    }, 3000);
+    
+  } catch (error) {
+    console.error('❌ Restart failed:', error);
     res.status(500).json({
       success: false,
       error: error.message
