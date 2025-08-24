@@ -156,70 +156,117 @@ app.post('/api/memory/recall', async (req, res) => {
 });
 ```
 
-**记忆层次设计**:
+**简化记忆架构设计** (参考DeeChat的智能分层系统):
 ```
-🧠 原生+MCP双重记忆架构
-├─ 会话记忆 (原生ConversationManager)
-│  ├─ 当前对话上下文 ✅ 原生Map管理
-│  └─ 实时对话连贯性 ✅ 完全可控
-└─ 长期记忆 (MCP Client -> PromptX)
-   ├─ 用户重要信息 ✅ MCP标准化保存
-   └─ 跨会话记忆回调 ✅ JSON-RPC 2.0调用
+🧠 基于PromptX的简化记忆架构
+├─ 第1层：角色状态层
+│  ├─ 角色身份维护 ✅ 防止长对话中角色丢失
+│  └─ PromptX记忆感知 ✅ 自然融入历史记忆
+├─ 第2层：历史对话层 (简化版)
+│  ├─ 最近4轮对话 ✅ 本地短期上下文
+│  └─ 重要信息依赖PromptX ✅ 无需复杂压缩
+└─ 第3层：当前消息层
+   ├─ 用户输入处理 ✅ 直接传递
+   └─ MCP记忆触发 ✅ 异步保存重要信息
 ```
 
-### Task 3.1.2: 智能记忆触发机制
-**预估时间**: 3小时
+### Task 3.1.2: 智能记忆触发机制 (简化版)
+**预估时间**: 1.5小时 (基于DeeChat的智能判断)
 **具体内容**:
 - 设计记忆触发的关键词和规则
 - 实现情绪词汇检测
 - 添加重要事件识别逻辑
 - 确保记忆触发的准确性
 
-**触发规则设计**:
+**简化触发规则设计** (参考DeeChat的智能判断):
 ```javascript
-const MEMORY_TRIGGERS = {
-  emotions: ['累', '压力', '开心', '难过', '兴奋', '焦虑', '放松'],
-  events: ['工作', '项目', 'deadline', '会议', '旅行', '学习'],
-  preferences: ['喜欢', '不喜欢', '想要', '希望', '讨厌', '爱好'],
-  relationships: ['同事', '朋友', '家人', '老板', '客户']
-};
-
-function shouldSaveMemory(userMessage) {
-  const message = userMessage.toLowerCase();
-  
-  // 检查是否包含触发词
-  for (const category in MEMORY_TRIGGERS) {
-    if (MEMORY_TRIGGERS[category].some(word => message.includes(word))) {
-      return {
-        shouldSave: true,
-        category: category,
-        content: extractImportantInfo(userMessage)
-      };
-    }
+// 简化版触发器 - 更智能的判断逻辑
+class MemoryTriggerSimplified {
+  constructor() {
+    // 关键词权重系统（而非简单匹配）
+    this.triggerWeights = {
+      emotions: { weight: 0.8, keywords: ['压力', '开心', '难过', '兴奋', '焦虑', '累'] },
+      personal: { weight: 0.9, keywords: ['喜欢', '不喜欢', '爱好', '希望', '讨厌'] },
+      important: { weight: 1.0, keywords: ['重要', '记住', '别忘了', '提醒我'] },
+      work: { weight: 0.7, keywords: ['工作', '项目', '任务', '同事', '老板'] }
+    };
   }
   
-  return { shouldSave: false };
+  // 智能判断是否需要保存（参考DeeChat的多维度评估）
+  shouldSaveMemory(userMessage, aiResponse) {
+    let totalScore = 0;
+    let triggeredCategories = [];
+    
+    // 1. 关键词权重评分
+    for (const [category, config] of Object.entries(this.triggerWeights)) {
+      const matches = config.keywords.filter(word => 
+        userMessage.toLowerCase().includes(word)
+      ).length;
+      
+      if (matches > 0) {
+        totalScore += config.weight * matches;
+        triggeredCategories.push(category);
+      }
+    }
+    
+    // 2. 对话长度因子（长对话更可能包含重要信息）
+    const lengthFactor = Math.min(userMessage.length / 100, 1.0);
+    totalScore += lengthFactor * 0.3;
+    
+    // 3. 问号密度（问题往往包含重要信息）
+    const questionDensity = (userMessage.match(/[？?]/g) || []).length / userMessage.length * 100;
+    totalScore += questionDensity * 0.2;
+    
+    // 简化判断：总分大于阈值就保存
+    const threshold = 0.6;
+    return {
+      shouldSave: totalScore >= threshold,
+      score: totalScore,
+      categories: triggeredCategories,
+      content: this.extractKeyInfo(userMessage, triggeredCategories)
+    };
+  }
+  
+  // 提取关键信息（简化版）
+  extractKeyInfo(message, categories) {
+    // 简单提取：取前200个字符作为摘要
+    const summary = message.length > 200 ? message.slice(0, 200) + '...' : message;
+    return {
+      summary,
+      categories,
+      timestamp: new Date().toISOString(),
+      importance: categories.includes('important') ? 'high' : 'medium'
+    };
+  }
 }
 ```
 
-### Task 3.1.3: 记忆内容格式化
-**预估时间**: 3小时
+### Task 3.1.3: 记忆内容格式化 (完全基于PromptX)
+**预估时间**: 1小时 (直接使用PromptX格式)
 **具体内容**:
 - 实现记忆内容的自动格式化
 - 设计schema生成规则
 - 实现strength权重计算
 - 确保记忆内容符合PromptX标准
 
-**格式化实现**:
+**PromptX格式化实现** (完全依赖PromptX标准):
 ```javascript
-function formatMemoryContent(userMessage, category) {
-  const content = extractKeyInfo(userMessage);
-  
+// 完全基于PromptX的记忆格式（无需自定义schema）
+function formatForPromptX(userMessage, aiResponse, roleId, sessionId) {
+  // PromptX会自动处理记忆的schema和强度
   return {
-    content: content,
-    schema: generateSchema(content, category),
-    strength: calculateStrength(category, content),
-    type: determineMemoryType(category)
+    role: roleId,
+    session: sessionId,
+    interaction: {
+      user: userMessage,
+      ai: aiResponse,
+      timestamp: new Date().toISOString()
+    },
+    // PromptX MCP工具会自动处理其余格式化
+    metadata: {
+      source: 'ai-tavern',
+      type: 'conversation'
+    }
   };
 }
 
@@ -247,34 +294,63 @@ function calculateStrength(category, content) {
 }
 ```
 
-### Task 3.1.4: 记忆保存的用户体验优化
-**预估时间**: 2小时
+### Task 3.1.4: 用户体验优化 (异步 + 静默)
+**预估时间**: 1小时 (简化版体验)
 **具体内容**:
 - 确保记忆保存不影响对话流畅性
 - 添加静默错误处理
 - 实现保存状态的可选显示
 - 优化工具调用的性能
 
-**体验优化**:
+**简化体验优化** (参考DeeChat的无感知设计):
 ```javascript
-async function handleUserMessage(message) {
-  // 1. 立即响应用户，不等待记忆保存
-  const aiResponse = await generateResponse(message);
-  displayMessage(aiResponse);
-  
-  // 2. 异步保存记忆，不阻塞界面
-  const memoryCheck = shouldSaveMemory(message);
-  if (memoryCheck.shouldSave) {
-    // 异步保存，不影响用户体验
-    saveMemoryAsync(memoryCheck.content)
-      .then(result => {
-        // 可选：显示记忆保存成功的微提示
-        showMemoryHint('💾 已保存到记忆中');
-      })
+// 完全静默的记忆保存（用户无感知）
+async function handleUserMessageOptimized(message, roleId, sessionId) {
+  try {
+    // 1. 立即生成回复（不等待任何记忆操作）
+    const aiResponse = await this.generateAIResponse(message, roleId, sessionId);
+    
+    // 2. 立即返回给用户
+    const response = {
+      success: true,
+      data: { 
+        message: aiResponse, 
+        role: roleId,
+        timestamp: new Date().toISOString()
+      }
+    };
+    
+    // 3. 完全异步的记忆保存（用户完全感知不到）
+    this.saveMemoryIfNeeded(message, aiResponse, roleId, sessionId)
       .catch(error => {
-        // 静默处理错误，不打断用户
-        console.warn('记忆保存失败，但不影响对话:', error);
+        // 完全静默处理，记录到日志但不影响用户
+        console.info('[记忆保存] 静默失败:', error.message);
       });
+    
+    return response;
+    
+  } catch (error) {
+    // 即使记忆系统完全失败，对话功能依然正常
+    return this.generateFallbackResponse(message, roleId);
+  }
+}
+
+// 智能记忆保存（完全基于PromptX）
+async saveMemoryIfNeeded(userMessage, aiResponse, roleId, sessionId) {
+  const memoryTrigger = new MemoryTriggerSimplified();
+  const analysis = memoryTrigger.shouldSaveMemory(userMessage, aiResponse);
+  
+  if (analysis.shouldSave) {
+    // 直接调用MCP Client保存到PromptX
+    await this.mcpClient.promptxRemember({
+      user_message: userMessage,
+      ai_response: aiResponse,
+      role: roleId,
+      importance: analysis.score,
+      categories: analysis.categories
+    }, sessionId);
+    
+    console.info(`[记忆保存] 成功保存重要对话 (评分: ${analysis.score})`);
   }
 }
 
@@ -326,12 +402,13 @@ function showMemoryHint(message) {
 ```
 
 ## 依赖关系
-- 依赖Epic 2的对话系统和LLM集成
-- 为Story 3.2的记忆回调提供数据基础
+- 依赖Epic 2的原生OpenAI API和MCP Client集成
+- 完全基于PromptX记忆，无需复杂的本地记忆管理
+- 为前端记忆演示界面提供数据基础
 
-## 验收标准
-1. PromptX记忆工具调用成功率 > 90%
-2. 关键信息识别准确率 > 80%
-3. 记忆保存不影响对话响应时间
-4. 错误处理完善，不会中断对话
-5. 保存的记忆内容格式正确，便于后续检索
+## 验收标准 (简化版)
+1. MCP Client记忆调用成功率 > 95% (更简单更稳定)
+2. 重要信息智能识别准确率 > 70% (降低期望，注重实用)
+3. 记忆保存完全不影响对话响应时间 (完全异步)
+4. 即使记忆系统失败，对话功能依然正常 (优雅降级)
+5. 记忆格式完全由PromptX管理，无需手动维护格式
