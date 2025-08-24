@@ -1,0 +1,111 @@
+{
+  "currentState": "learn_error",
+  "stateHistory": [
+    {
+      "from": "initial",
+      "command": "action",
+      "timestamp": "2025-08-24T06:06:01.587Z",
+      "args": [
+        "ai-tavern-frontend"
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "welcome",
+      "timestamp": "2025-08-24T06:06:05.063Z",
+      "args": []
+    },
+    {
+      "from": "initial",
+      "command": "init",
+      "timestamp": "2025-08-24T06:06:17.134Z",
+      "args": [
+        {
+          "workingDirectory": "d:\\Users\\Merri\\Desktop\\meetup\\AI酒馆"
+        }
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "welcome",
+      "timestamp": "2025-08-24T06:06:21.037Z",
+      "args": []
+    },
+    {
+      "from": "initial",
+      "command": "action",
+      "timestamp": "2025-08-24T06:06:24.761Z",
+      "args": [
+        "ai-tavern-frontend"
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "welcome",
+      "timestamp": "2025-08-24T06:24:56.363Z",
+      "args": []
+    },
+    {
+      "from": "initial",
+      "command": "action",
+      "timestamp": "2025-08-24T06:25:00.441Z",
+      "args": [
+        "ai-tavern-backend"
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "welcome",
+      "timestamp": "2025-08-24T06:31:50.154Z",
+      "args": []
+    },
+    {
+      "from": "initial",
+      "command": "action",
+      "timestamp": "2025-08-24T06:31:54.331Z",
+      "args": [
+        "ai-tavern-backend"
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "welcome",
+      "timestamp": "2025-08-24T06:37:14.565Z",
+      "args": []
+    },
+    {
+      "from": "initial",
+      "command": "action",
+      "timestamp": "2025-08-24T06:37:19.092Z",
+      "args": [
+        "assistant"
+      ]
+    },
+    {
+      "from": "initial",
+      "command": "learn",
+      "timestamp": "2025-08-24T06:37:25.973Z",
+      "args": [
+        "@manual://promptx_remember"
+      ]
+    },
+    {
+      "from": "learn_error",
+      "command": "learn",
+      "timestamp": "2025-08-24T06:37:33.838Z",
+      "args": [
+        "@execution://memory-trigger"
+      ]
+    },
+    {
+      "from": "learn_error",
+      "command": "recall",
+      "timestamp": "2025-08-24T06:37:38.715Z",
+      "args": [
+        "assistant",
+        "记忆"
+      ]
+    }
+  ],
+  "lastUpdated": "2025-08-24T06:37:38.721Z"
+}

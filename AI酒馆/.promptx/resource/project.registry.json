@@ -1,0 +1,150 @@
+{
+  "version": "2.0.0",
+  "source": "project",
+  "metadata": {
+    "version": "2.0.0",
+    "description": "project 级资源注册表",
+    "createdAt": "2025-08-24T06:37:14.566Z",
+    "updatedAt": "2025-08-24T06:37:14.581Z",
+    "resourceCount": 9
+  },
+  "resources": [
+    {
+      "id": "ai-tavern-backend",
+      "source": "project",
+      "protocol": "role",
+      "name": "Ai Tavern Backend 角色",
+      "description": "专业角色，提供特定领域的专业能力",
+      "reference": "@project://.promptx/resource/role/ai-tavern-backend/ai-tavern-backend.role.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.569Z",
+        "updatedAt": "2025-08-24T06:37:14.569Z",
+        "scannedAt": "2025-08-24T06:37:14.569Z",
+        "path": "role/ai-tavern-backend/ai-tavern-backend.role.md"
+      }
+    },
+    {
+      "id": "backend-development-process",
+      "source": "project",
+      "protocol": "execution",
+      "name": "Backend Development Process 执行模式",
+      "description": "执行模式，定义具体的行为模式",
+      "reference": "@project://.promptx/resource/role/ai-tavern-backend/execution/backend-development-process.execution.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.570Z",
+        "updatedAt": "2025-08-24T06:37:14.570Z",
+        "scannedAt": "2025-08-24T06:37:14.570Z",
+        "path": "role/ai-tavern-backend/execution/backend-development-process.execution.md"
+      }
+    },
+    {
+      "id": "backend-native-mcp-architecture",
+      "source": "project",
+      "protocol": "thought",
+      "name": "Backend Native Mcp Architecture 思维模式",
+      "description": "思维模式，指导AI的思考方式",
+      "reference": "@project://.promptx/resource/role/ai-tavern-backend/thought/backend-native-mcp-architecture.thought.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.571Z",
+        "updatedAt": "2025-08-24T06:37:14.571Z",
+        "scannedAt": "2025-08-24T06:37:14.571Z",
+        "path": "role/ai-tavern-backend/thought/backend-native-mcp-architecture.thought.md"
+      }
+    },
+    {
+      "id": "ai-tavern-frontend",
+      "source": "project",
+      "protocol": "role",
+      "name": "Ai Tavern Frontend 角色",
+      "description": "专业角色，提供特定领域的专业能力",
+      "reference": "@project://.promptx/resource/role/ai-tavern-frontend/ai-tavern-frontend.role.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.573Z",
+        "updatedAt": "2025-08-24T06:37:14.573Z",
+        "scannedAt": "2025-08-24T06:37:14.573Z",
+        "path": "role/ai-tavern-frontend/ai-tavern-frontend.role.md"
+      }
+    },
+    {
+      "id": "frontend-development-workflow",
+      "source": "project",
+      "protocol": "execution",
+      "name": "Frontend Development Workflow 执行模式",
+      "description": "执行模式，定义具体的行为模式",
+      "reference": "@project://.promptx/resource/role/ai-tavern-frontend/execution/frontend-development-workflow.execution.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.574Z",
+        "updatedAt": "2025-08-24T06:37:14.574Z",
+        "scannedAt": "2025-08-24T06:37:14.574Z",
+        "path": "role/ai-tavern-frontend/execution/frontend-development-workflow.execution.md"
+      }
+    },
+    {
+      "id": "frontend-tavern-design",
+      "source": "project",
+      "protocol": "thought",
+      "name": "Frontend Tavern Design 思维模式",
+      "description": "思维模式，指导AI的思考方式",
+      "reference": "@project://.promptx/resource/role/ai-tavern-frontend/thought/frontend-tavern-design.thought.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.575Z",
+        "updatedAt": "2025-08-24T06:37:14.575Z",
+        "scannedAt": "2025-08-24T06:37:14.575Z",
+        "path": "role/ai-tavern-frontend/thought/frontend-tavern-design.thought.md"
+      }
+    },
+    {
+      "id": "ai-tavern-integrator",
+      "source": "project",
+      "protocol": "role",
+      "name": "Ai Tavern Integrator 角色",
+      "description": "专业角色，提供特定领域的专业能力",
+      "reference": "@project://.promptx/resource/role/ai-tavern-integrator/ai-tavern-integrator.role.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.576Z",
+        "updatedAt": "2025-08-24T06:37:14.576Z",
+        "scannedAt": "2025-08-24T06:37:14.576Z",
+        "path": "role/ai-tavern-integrator/ai-tavern-integrator.role.md"
+      }
+    },
+    {
+      "id": "integration-coordination-process",
+      "source": "project",
+      "protocol": "execution",
+      "name": "Integration Coordination Process 执行模式",
+      "description": "执行模式，定义具体的行为模式",
+      "reference": "@project://.promptx/resource/role/ai-tavern-integrator/execution/integration-coordination-process.execution.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.578Z",
+        "updatedAt": "2025-08-24T06:37:14.578Z",
+        "scannedAt": "2025-08-24T06:37:14.578Z",
+        "path": "role/ai-tavern-integrator/execution/integration-coordination-process.execution.md"
+      }
+    },
+    {
+      "id": "fullstack-integration-strategy",
+      "source": "project",
+      "protocol": "thought",
+      "name": "Fullstack Integration Strategy 思维模式",
+      "description": "思维模式，指导AI的思考方式",
+      "reference": "@project://.promptx/resource/role/ai-tavern-integrator/thought/fullstack-integration-strategy.thought.md",
+      "metadata": {
+        "createdAt": "2025-08-24T06:37:14.579Z",
+        "updatedAt": "2025-08-24T06:37:14.579Z",
+        "scannedAt": "2025-08-24T06:37:14.579Z",
+        "path": "role/ai-tavern-integrator/thought/fullstack-integration-strategy.thought.md"
+      }
+    }
+  ],
+  "stats": {
+    "totalResources": 9,
+    "byProtocol": {
+      "role": 3,
+      "execution": 3,
+      "thought": 3
+    },
+    "bySource": {
+      "project": 9
+    }
+  }
+}

@@ -45,6 +45,22 @@
 - 内存缓存用于短期数据存储
 
 ## execution
+### 任务领取指引
+
+**你的专属任务目录**：`AI_Tavern_Tasks/Backend_Tasks/`
+
+**任务领取原则**：
+1. 优先处理标记为P0（最高优先级）的Epic和Story
+2. 按照Epic顺序执行：Epic0_后端基础设施 → Epic1_基础API → Epic2_AI服务集成 → Epic3_PromptX集成
+3. 每个Story完成后，更新任务状态并记录完成情况
+4. 遇到阻塞问题时，及时与ai-tavern-integrator协调
+
+**当前重点任务**：
+- Epic0: 搭建Node.js + Express基础架构
+- Epic1: 实现基础的对话API接口
+- Epic2: 集成LangChain进行AI对话处理
+- Epic3: 通过MCP协议连接PromptX记忆系统
+
 ### 后端开发流程
 
 #### 1. 需求分析阶段
