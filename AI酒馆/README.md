@@ -67,6 +67,8 @@ AI酒馆/
 2. ✅ 获取 OpenAI API Key  
 3. ✅ 创建 .env 配置文件
 
+**💡 未来改进建议**: 添加前端配置界面，让用户通过Web页面进行可视化配置
+
 **详细步骤请查看：[CONFIG_GUIDE.md](./CONFIG_GUIDE.md)**
 
 ## 📞 获得帮助
