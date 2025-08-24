@@ -8,7 +8,16 @@
       "Bash(git checkout:*)",
       "Bash(gh api:*)",
       "Bash(gh repo view:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "mcp__promptx-cli__action",
+      "mcp__promptx-cli__learn",
+      "mcp__promptx-cli__recall",
+      "mcp__promptx-cli__toolx",
+      "mcp__promptx-cli__welcome",
+      "mcp__promptx-cli__remember",
+      "mcp__promptx-cli__init",
+      "mcp__promptx-cli__remember",
+      "Bash(npx promptx:*)"
     ],
     "defaultMode": "acceptEdits"
   }
