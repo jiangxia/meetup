@@ -1,7 +1,7 @@
 <execution>
   <constraint>
     ## 技术约束条件
-    - **时间限制**：48小时黑客松，前端开发时间约5.5小时
+    - **时间限制**：22小时总开发时间，前端开发约4小时（基于简化架构优化）
     - **技术栈限制**：HTML5 + CSS3 + Vanilla JS，不使用React/Vue等框架
     - **浏览器兼容**：现代浏览器优先，Chrome/Safari/Firefox最新版
     - **设备适配**：响应式设计，支持手机到桌面的全设备访问
@@ -163,24 +163,27 @@
     }
     ```
     
-    #### 3.2 记忆演示组件（45分钟）
+    #### 3.2 PromptX记忆演示组件（45分钟）
     ```javascript
-    class MemoryDemo {
+    class PromptXMemoryDemo {
         constructor(roleData) {
-            this.demoSteps = DEMO_STEPS;
-            this.currentStep = 0;
+            this.roleData = roleData;
+            this.memoryVisualization = null;
         }
         
         showDemo() {
-            // 显示记忆演示界面
+            // 显示PromptX记忆演示界面
+            // 展示基于MCP协议的记忆功能
         }
         
-        runDemoSequence() {
-            // 执行演示序列
+        runMemoryDemoSequence() {
+            // 演示3层架构的记忆系统
+            // 第1层：角色状态 → 第2层：短期对话 → 第3层：长期PromptX记忆
         }
         
-        updateMemoryVisualization(data) {
-            // 更新记忆可视化
+        updateMemoryVisualization(memoryData) {
+            // 实时更新PromptX记忆的可视化展示
+            // 显示记忆保存和回调过程
         }
     }
     ```
@@ -262,11 +265,11 @@
     ## 验收标准
     
     ### 功能完整性
-    - [ ] 角色选择界面可用，支持3个角色切换
-    - [ ] 对话功能正常，消息收发稳定
-    - [ ] 流式响应效果流畅，打字效果自然
-    - [ ] 记忆演示界面震撼，可视化效果明显
-    - [ ] 所有API集成正常，错误处理完善
+    - [ ] 角色选择界面可用，支持Aria、Morgan、Sean三个角色
+    - [ ] 对话功能正常，基于原生+MCP架构的消息收发
+    - [ ] 流式响应效果流畅，实现实时打字效果
+    - [ ] PromptX记忆演示震撼，3层架构可视化效果明显
+    - [ ] MCP API集成正常，优雅降级机制完善
     
     ### 用户体验
     - [ ] 界面加载时间 < 3秒
