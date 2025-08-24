@@ -5,10 +5,11 @@
 AI酒馆是一个基于PromptX协议的多Agent演示系统，专为48小时黑客松设计，核心目标是展示PromptX的双重记忆系统和Agent概念的强大能力。
 
 ### 🎯 核心价值
-- **PromptX记忆演示**：展示LangChain短期记忆 + PromptX长期记忆的协同工作
+- **MCP标准化集成**：基于MCP协议的标准化PromptX服务集成，展示MCP生态价值
+- **PromptX记忆演示**：通过MCP Client调用PromptX记忆服务，展示长期记忆能力
 - **流式响应体验**：实时打字效果，模拟真人对话体验
 - **角色化AI交互**：Aria(温柔型)、Morgan(理性型)、Sean(专家型)三个差异化角色
-- **技术架构展示**：前端TailwindCSS + 后端LangChain + PromptX MCP集成
+- **技术架构展示**：前端TailwindCSS + 后端MCP Client + PromptX MCP Server通信
 
 ## 🏗️ 项目架构
 
@@ -33,14 +34,16 @@ AI-Tavern/
 │   │   │   └── components/
 │   │   └── images/
 │   └── README.md
-├── backend/                           # 后端代码
+├── backend/                           # 后端代码 (MCP Client为核心)
 │   ├── server.js
 │   ├── package.json
 │   ├── .env.example
 │   ├── lib/
-│   │   ├── langchain-config.js
-│   │   ├── promptx-bridge.js
-│   │   └── memory-manager.js
+│   │   ├── mcp-client.js              # 核心MCP客户端
+│   │   ├── promptx-connection.js      # PromptX MCP Server连接
+│   │   ├── memory-client.js          # 记忆服务MCP调用
+│   │   ├── agent-client.js           # Agent角色MCP调用
+│   │   └── stream-controller.js      # 流式响应控制
 │   └── README.md
 ├── docs/                             # 项目文档
 │   ├── API_SPECIFICATION.md
@@ -146,7 +149,7 @@ promptx action ai-tavern-frontend
 
 ### ⚙️ 后端开发者角色 (`ai-tavern-backend`)
 
-**专业领域**：LangChain集成、PromptX桥接、流式API服务
+**专业领域**：MCP Client架构、PromptX MCP集成、流式API服务
 
 **使用场景**：
 ```bash
@@ -154,17 +157,17 @@ promptx action ai-tavern-frontend
 promptx action ai-tavern-backend
 
 # 常见询问：
-"请搭建LangChain对话链架构"
-"如何集成PromptX MCP桥接器？" 
-"实现Server-Sent Events流式API"
-"设计双重记忆系统架构"
+"请搭建标准MCP Client架构"
+"如何连接和调用PromptX MCP Server？" 
+"实现基于MCP协议的流式API"
+"设计MCP工具调用的错误处理机制"
 ```
 
 **核心能力**：
-- LangChain.js框架深度集成
-- PromptX MCP协议桥接实现
-- 高性能流式API服务设计
-- 双重记忆系统协调管理
+- 标准MCP Client架构设计和实现
+- PromptX MCP Server连接和工具调用
+- 基于MCP协议的高性能API服务
+- MCP通信的错误处理和重连机制
 
 ### 🔧 集成协调者角色 (`ai-tavern-integrator`)
 
@@ -190,11 +193,17 @@ promptx action ai-tavern-integrator
 
 ## 📊 开发检查点
 
+### 2小时检查点 (MCP 优先验证)
+- [ ] PromptX MCP Server连接成功
+- [ ] 基础MCP工具调用验证通过
+- [ ] MCP Client架构搭建完成
+- [ ] 错误处理和重连机制ready
+
 ### 4小时检查点
-- [ ] API规范文档完整
-- [ ] Mock环境搭建完成
+- [ ] API规范文档完整 (基于MCP协议)
+- [ ] MCP集成环境搭建完成
 - [ ] 前后端基础架构ready
-- [ ] 开发环境配置正常
+- [ ] PromptX服务调用正常
 
 ### 8小时检查点  
 - [ ] 基础UI界面可用
@@ -244,10 +253,15 @@ promptx action ai-tavern-integrator
 
 ### 本地开发测试
 ```bash
-# 后端服务测试
+# MCP连接测试 (优先级最高)
 cd backend
 npm start
-curl http://localhost:3001/health
+curl http://localhost:3001/mcp/health
+
+# PromptX MCP Server连接验证
+curl -X POST http://localhost:3001/mcp/test-connection \
+  -H "Content-Type: application/json" \
+  -d '{"tool": "promptx_remember"}'
 
 # API功能测试
 curl -X POST http://localhost:3001/api/chat/aria \
@@ -295,6 +309,19 @@ docker-compose up -d
 
 ### 常见问题
 
+#### MCP连接问题 (最高优先级)
+```bash
+# 检查PromptX MCP Server状态
+promptx --version
+promptx status
+
+# 测试MCP连接
+node -e "console.log('Testing MCP connection...')"
+
+# 检查MCP工具可用性
+curl -X POST http://localhost:3001/mcp/list-tools
+```
+
 #### PromptX角色无法激活
 ```bash
 # 检查PromptX安装
@@ -339,10 +366,10 @@ res.writeHead(200, {
 ## 💡 最佳实践
 
 ### 开发原则
-1. **API优先**：接口规范先定义，避免对接问题
-2. **并行开发**：前后端基于Mock数据同步开发
-3. **分阶段集成**：每4小时验证，及时发现问题
-4. **演示导向**：所有功能服务于最终演示效果
+1. **MCP优先**：优先验证MCP连接，确保PromptX服务可用
+2. **标准协议**：严格遵循MCP协议规范，避免自定义实现
+3. **分阶段集成**：每2小时验证MCP连接，每4小时验证功能集成
+4. **演示导向**：所有功能服务于展示MCP标准化集成价值
 
 ### 代码规范
 1. **错误处理**：所有API调用必须有try-catch
@@ -350,28 +377,34 @@ res.writeHead(200, {
 3. **配置外置**：敏感信息使用环境变量
 4. **注释充分**：复杂逻辑要有清晰注释
 
+### MCP集成规范
+1. **连接管理**：使用连接池，自动重连机制
+2. **工具调用**：统一的MCP工具调用封装，标准错误处理
+3. **协议遵循**：严格按照MCP协议规范实现，确保兼容性
+4. **性能优化**：MCP调用 < 1秒，连接重试 < 3次
+
 ### 性能优化
-1. **响应时间**：API响应 < 2秒，界面响应 < 100ms
-2. **内存管理**：及时释放资源，避免内存泄漏
-3. **网络优化**：合理使用缓存，减少重复请求
-4. **用户体验**：加载状态、错误提示要友好
+1. **响应时间**：MCP调用 < 1秒，API响应 < 2秒，界面响应 < 100ms
+2. **内存管理**：及时释放MCP连接资源，避免内存泄漏
+3. **网络优化**：MCP连接复用，减少重复连接开销
+4. **用户体验**：MCP调用状态展示，错误提示要友好
 
 ## 🎯 演示脚本
 
 ### 5分钟演示流程
 ```
-00:00-01:00  项目介绍：PromptX双重记忆系统价值
-01:00-02:00  角色选择：激活Aria角色，展示差异化
-02:00-03:30  对话体验：流式响应，情感记忆保存
-03:30-04:00  记忆演示：双重记忆可视化对比
-04:00-05:00  技术亮点：PromptX生态价值展示
+00:00-01:00  项目介绍：MCP标准化集成，PromptX生态价值
+01:00-02:00  MCP连接演示：展示实时MCP Server通信
+02:00-03:30  对话体验：通过MCP调用PromptX记忆和Agent服务
+03:30-04:00  记忆演示：MCP记忆服务可视化展示
+04:00-05:00  技术亮点：标准化MCP协议的集成优势
 ```
 
 ### 关键演示点
-- **技术创新**：双重记忆系统的协同工作
-- **用户体验**：流式响应的真人对话感
-- **角色差异**：三个AI角色的个性化体现  
-- **生态价值**：PromptX系统的扩展能力
+- **标准化集成**：展示MCP协议的标准化价值和易用性
+- **实时通信**：MCP Client与PromptX Server的无缝连接
+- **服务调用**：统一的MCP工具调用，简化集成复杂度  
+- **生态价值**：基于MCP的PromptX服务生态扩展能力
 
 ## 🤝 贡献指南
 
