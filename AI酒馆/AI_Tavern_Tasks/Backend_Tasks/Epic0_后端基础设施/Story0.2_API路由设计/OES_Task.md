@@ -36,8 +36,8 @@ router.post('/', async (req, res) => {
   try {
     const { message, roleId = 'aria', conversationId } = req.body;
     
-    // TODO: 调用LLM服务
-    const response = await llmService.sendMessage(message, roleId, conversationId);
+    // TODO: 调用原生OpenAI客户端和MCP Client
+    const response = await chatService.handleMessage(message, roleId, conversationId);
     
     res.json({
       success: true,
@@ -70,19 +70,38 @@ router.get('/history/:conversationId', async (req, res) => {
 module.exports = router;
 ```
 
-### 2. PromptX工具API (/api/promptx)
+### 2. MCP PromptX工具API (/api/mcp)
+
+**注意**: 这个API组是基于MCP(Model Context Protocol)的标准化接口，直接与PromptX MCP Server通信。
 ```javascript
-// routes/promptx.js
+// routes/mcp.js
 const express = require('express');
 const router = express.Router();
+
+// MCP连接健康检查
+router.get('/health', async (req, res) => {
+  try {
+    const status = await mcpClient.getConnectionStatus();
+    res.json({
+      success: true,
+      data: {
+        connected: status.connected,
+        server: 'promptx',
+        transport: 'stdio'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // 激活角色
 router.post('/action', async (req, res) => {
   try {
-    const { roleId } = req.body;
+    const { roleId, message = '' } = req.body;
     
-    // TODO: 调用PromptX action工具
-    const result = await promptxService.activateRole(roleId);
+    // 通过MCP Client调用PromptX action工具
+    const result = await mcpClient.promptxAction(roleId, message);
     
     res.json({
       success: true,
@@ -102,8 +121,12 @@ router.post('/remember', async (req, res) => {
   try {
     const { roleId, content, context } = req.body;
     
-    // TODO: 调用PromptX remember工具
-    const result = await promptxService.saveMemory(roleId, content, context);
+    // 通过MCP Client调用PromptX remember工具
+    const result = await mcpClient.promptxRemember({
+      content,
+      context,
+      role: roleId
+    }, req.body.sessionId || 'default');
     
     res.json({ success: true, data: result });
   } catch (error) {
@@ -112,12 +135,12 @@ router.post('/remember', async (req, res) => {
 });
 
 // 回调记忆
-router.get('/recall/:roleId/:query', async (req, res) => {
+router.post('/recall', async (req, res) => {
   try {
-    const { roleId, query } = req.params;
+    const { roleId, query, sessionId = 'default' } = req.body;
     
-    // TODO: 调用PromptX recall工具
-    const memories = await promptxService.recallMemory(roleId, query);
+    // 通过MCP Client调用PromptX recall工具
+    const memories = await mcpClient.promptxRecall(query, sessionId);
     
     res.json({ success: true, data: memories });
   } catch (error) {
@@ -161,7 +184,7 @@ router.post('/recommend', async (req, res) => {
   try {
     const { keywords, context } = req.body;
     
-    // TODO: 实现角色推荐逻辑
+    // 基于关键词推荐适合的角色
     const recommendations = await roleService.getRecommendations(keywords, context);
     
     res.json({ success: true, data: recommendations });
@@ -188,7 +211,7 @@ const validateChatMessage = (req, res, next) => {
     });
   }
   
-  if (roleId && !['aria', 'morgan'].includes(roleId)) {
+  if (roleId && !['aria', 'morgan', 'sean'].includes(roleId)) {
     return res.status(400).json({
       success: false,
       error: '无效的角色ID'

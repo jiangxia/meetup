@@ -4,10 +4,11 @@
 实现后端的消息处理逻辑，包括消息队列、会话管理、上下文处理等服务端逻辑
 
 ## E (Environment)
-- **基础**: 基于Epic2.2的LLM集成
-- **消息队列**: 内存队列 + 可选Redis
-- **会话管理**: UUID会话标识
+- **基础**: 基于Epic2.2的原生OpenAI API集成
+- **消息队列**: 内存队列管理
+- **会话管理**: UUID会话标识 + 原生Map存储
 - **上下文管理**: 滑动窗口策略
+- **MCP集成**: 基于MCP Client的PromptX服务调用
 
 ## S (Success Criteria)
 
@@ -42,7 +43,8 @@ class ConversationManager {
     this.conversations = new Map();
     this.maxConversations = options.maxConversations || 1000;
     this.sessionTimeout = options.sessionTimeout || 30 * 60 * 1000; // 30分钟
-    this.maxContextLength = options.maxContextLength || 4000; // tokens
+    this.maxContextLength = options.maxContextLength || 2000; // 减少到2000 tokens
+    this.maxHistoryRounds = options.maxHistoryRounds || 4; // 最多保留4轮对话
     
     // 定期清理过期会话
     this.startCleanupTimer();
@@ -100,12 +102,19 @@ class ConversationManager {
     return messageObj;
   }
 
-  // 管理上下文长度
+  // 管理上下文长度 - 简化版（基于轮次而非token）
   manageContextLength(conversation) {
-    while (conversation.tokenCount > this.maxContextLength && conversation.messages.length > 2) {
-      // 保留系统消息，移除最早的用户/助手消息
-      const removedMessage = conversation.messages.splice(1, 1)[0];
-      conversation.tokenCount -= removedMessage.tokenCount;
+    // 使用简单的轮次限制，而不是复杂的token计算
+    if (conversation.messages.length > this.maxHistoryRounds * 2) {
+      // 每轮对话包括用户消息和AI回复，所以 * 2
+      // 移除最早的消息对（保留最近的对话）
+      const messagesToRemove = conversation.messages.length - this.maxHistoryRounds * 2;
+      for (let i = 0; i < messagesToRemove; i++) {
+        const removed = conversation.messages.shift();
+        if (removed) {
+          conversation.tokenCount -= removed.tokenCount || 0;
+        }
+      }
     }
   }
 
@@ -280,11 +289,11 @@ module.exports = MessageQueue;
 ```javascript
 // services/messageProcessor.js
 class MessageProcessor extends MessageQueue {
-  constructor(llmService, conversationManager, promptxService) {
+  constructor(openaiClient, conversationManager, mcpClient) {
     super();
-    this.llmService = llmService;
+    this.llmService = openaiClient;  // 原生OpenAI Client
     this.conversationManager = conversationManager;
-    this.promptxService = promptxService;
+    this.promptxService = mcpClient;  // MCP Client for PromptX
   }
 
   // 处理用户消息
@@ -355,38 +364,108 @@ class MessageProcessor extends MessageQueue {
     // 获取会话上下文
     const context = this.conversationManager.getContext(conversationId);
     
-    // 激活PromptX角色（如果需要）
-    if (roleId && roleId !== 'default') {
-      await this.promptxService.activateRole(roleId);
+    // 通过MCP Client回忆记忆
+    let memories = [];
+    if (this.promptxService) {
+      memories = await this.promptxService.promptxRecall(message, conversationId);
     }
-
-    // 调用LLM生成回复
-    const response = await this.llmService.generateResponse(message, context, roleId);
+    
+    // 通过MCP Client激活角色
+    let roleResponse = null;
+    if (this.promptxService && roleId) {
+      roleResponse = await this.promptxService.promptxAction(roleId, message);
+    }
+    
+    // 构建消息上下文并调用原生OpenAI API
+    const messages = this.buildMessageContext(roleId, message, context, memories);
+    const response = await this.llmService.chat(messages);
+    const aiResponse = response.choices[0].message.content;
 
     // 将AI回复添加到会话
-    this.conversationManager.addMessage(conversationId, response.content, 'assistant');
+    this.conversationManager.addMessage(conversationId, aiResponse, 'assistant');
 
-    // 保存记忆（如果启用PromptX）
-    if (this.promptxService && response.shouldRemember) {
-      await this.promptxService.saveMemory(roleId, {
-        userMessage: message,
-        aiResponse: response.content,
-        context: response.memoryContext
-      });
+    // 通过MCP Client保存记忆
+    if (this.promptxService) {
+      await this.promptxService.promptxRemember({
+        user_message: message,
+        ai_response: aiResponse,
+        role: roleId
+      }, conversationId);
     }
 
     return {
       success: true,
       data: {
-        message: response.content,
+        message: aiResponse,
         conversationId,
         roleId,
         timestamp: new Date().toISOString()
       }
     };
   }
+  
+  // 构建消息上下文 - 简化版3层提示词系统
+  buildMessageContext(roleId, message, context, memories) {
+    const messages = [];
+    
+    // 第1层：角色状态层 - 基于PromptX的角色身份维护
+    const roleSystemPrompt = this.buildRoleSystemPrompt(roleId, memories);
+    messages.push({ role: 'system', content: roleSystemPrompt });
+    
+    // 第2层：历史对话层 - 使用PromptX记忆替代复杂历史管理
+    // 注意：我们直接使用PromptX记忆，不需要复杂的历史压缩
+    const contextPrompt = this.buildContextPrompt(context, memories);
+    if (contextPrompt) {
+      messages.push({ role: 'system', content: contextPrompt });
+    }
+    
+    // 第3层：当前消息层 - 处理用户当前输入
+    messages.push({ role: 'user', content: message });
+    
+    return messages;
+  }
+  
+  // 第1层：构建角色系统提示词（参考DeeChat的角色状态监控）
+  buildRoleSystemPrompt(roleId, memories) {
+    const basePrompts = {
+      aria: '🍷 你是AI酒馆的Aria，一位温柔体贴的调酒师，善于倾听和安慰客人的心声。',
+      morgan: '🥃 你是AI酒馆的Morgan，一位理性睿智的调酒师，擅长逻辑分析和深度对话。',
+      sean: '🍺 你是AI酒馆的Sean，一位博学专业的调酒师，拥有丰富的知识和人生阅历。'
+    };
+    
+    let systemPrompt = basePrompts[roleId] || basePrompts.aria;
+    
+    // 角色强化提示（防止长对话中角色身份丢失）
+    systemPrompt += '\\n\\n💡 作为专业调酒师，你需要：';
+    systemPrompt += '\\n- 保持角色特色和专业身份';
+    systemPrompt += '\\n- 根据客人状态调整对话风格'; 
+    systemPrompt += '\\n- 适时运用相关记忆增强对话';
+    
+    // PromptX记忆感知（如果有相关记忆）
+    if (memories && memories.length > 0) {
+      systemPrompt += `\\n\\n🧠 基于以往记忆，你了解这位客人的一些情况，请自然地融入对话中。`;
+    }
+    
+    return systemPrompt;
+  }
+  
+  // 第2层：构建上下文提示词（简化版历史管理）
+  buildContextPrompt(context, memories) {
+    if (!context || context.length === 0) return null;
+    
+    // 简化的上下文处理 - 只保留最近几轮对话
+    const recentContext = context.slice(-4); // 只保留最近4条消息
+    
+    let contextPrompt = '📚 近期对话背景:\\n';
+    recentContext.forEach((msg, index) => {
+      const role = msg.role === 'user' ? '客人' : '你';
+      contextPrompt += `${role}: ${msg.content.slice(0, 100)}${msg.content.length > 100 ? '...' : ''}\\n`;
+    });
+    
+    return contextPrompt;
+  }
 
-  // 处理PromptX操作
+  // 处理MCP PromptX操作
   async processPromptXAction(msgData) {
     const { action, roleId, data } = msgData;
     
@@ -394,21 +473,21 @@ class MessageProcessor extends MessageQueue {
       let result;
       switch (action) {
         case 'activate':
-          result = await this.promptxService.activateRole(roleId);
+          result = await this.promptxService.promptxAction(roleId, data.message || '');
           break;
         case 'remember':
-          result = await this.promptxService.saveMemory(roleId, data);
+          result = await this.promptxService.promptxRemember(data.content, data.session || 'default');
           break;
         case 'recall':
-          result = await this.promptxService.recallMemory(roleId, data.query);
+          result = await this.promptxService.promptxRecall(data.query, data.session || 'default');
           break;
         default:
-          throw new Error(`未知的PromptX操作: ${action}`);
+          throw new Error(`未知的MCP PromptX操作: ${action}`);
       }
 
       return { success: true, data: result };
     } catch (error) {
-      console.error('PromptX操作失败:', error);
+      console.error('MCP PromptX操作失败:', error);
       return { success: false, error: error.message };
     }
   }

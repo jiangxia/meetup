@@ -1,17 +1,17 @@
-# Story 2.2: LLM API集成
+# Story 2.2: 原生OpenAI API集成
 
 ## O (Objective)
-集成大语言模型API，实现AI回复功能
+使用纯原生fetch调用OpenAI API，实现轻量级AI回复功能
 
 ## E (Environment)
-- **确定技术栈**: Node.js/Express + LangChain框架 + OpenAI GPT-4o-mini
-- **架构模式**: 前端 -> LangChain Agent -> OpenAI API (框架化集成)
-- **AI框架**: LangChain (一行代码集成，内置最佳实践)
-- **角色系统**: LangChain Agent + PromptX角色 (完美融合)
-- **记忆管理**: LangChain Memory + PromptX MCP工具
-- **错误处理**: LangChain内置重试、超时、错误处理
-- **性能要求**: 首次回复 < 1.5s (LangChain优化)
-- **开发效率**: 比原生集成节省70%开发时间
+- **确定技术栈**: Node.js/Express + 纯原生实现 + OpenAI GPT-4o-mini
+- **架构模式**: 前端 -> 原生HTTP调用 -> OpenAI API (零框架依赖)
+- **AI服务**: 原生fetch + 流式SSE响应 (完全可控)
+- **角色系统**: MCP Client + PromptX角色 (标准协议集成)
+- **记忆管理**: PromptX MCP工具 (promptx_remember/recall)
+- **错误处理**: 自定义重试、超时、错误处理机制
+- **性能要求**: 首次回复 < 1s (原生优化)
+- **开发效率**: 启动时间 < 1秒，完全可控的代码路径
 
 ## S (Success Criteria)
 
@@ -28,96 +28,148 @@
 
 ## 具体任务分解
 
-### Task 2.2.1: LangChain AI集成搭建
-**预估时间**: 1小时 (LangChain超级简化版本！)
+### Task 2.2.1: 原生OpenAI Client搭建
+**预估时间**: 30分钟 (纯原生超级轻量！)
 **具体内容**:
-- 安装LangChain和OpenAI包
-- 创建LangChain Chain和Agent
-- 集成PromptX角色系统
-- 一行代码实现AI对话
+- 创建原生OpenAIClient类
+- 实现基础chat和chatStream方法
+- 集成MCP Client调用PromptX
+- 完全可控的API调用逻辑
 
-**LangChain超简单实现**:
+**纯原生超轻量实现**:
 ```javascript
-// server.js - LangChain版本
+// lib/openai-client.js - 纯原生版本
+class OpenAIClient {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseURL = 'https://api.openai.com/v1';
+  }
+
+  async chat(messages, options = {}) {
+    const response = await fetch(`${this.baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: options.model || 'gpt-4o-mini',
+        messages: messages,
+        temperature: options.temperature || 0.7
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
+    }
+    
+    return response.json();
+  }
+
+  async chatStream(messages, options = {}) {
+    const response = await fetch(`${this.baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: options.model || 'gpt-4o-mini',
+        messages: messages,
+        temperature: options.temperature || 0.7,
+        stream: true
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
+    }
+    
+    return response;
+  }
+}
+
+// server.js - 集成MCP + 原生OpenAI
 const express = require('express');
 const cors = require('cors');
-const { ChatOpenAI } = require('@langchain/openai');
-const { ConversationChain } = require('langchain/chains');
-const { BufferMemory } = require('langchain/memory');
-const { PromptTemplate } = require('langchain/prompts');
+const { OpenAIClient } = require('./lib/openai-client');
+const { NativeMCPClient } = require('./lib/mcp-client');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// LangChain配置 - 一行代码搞定AI！
-const llm = new ChatOpenAI({ 
-  modelName: 'gpt-4o-mini',
-  temperature: 0.7 
-});
+let openaiClient = null;
+let mcpClient = null;
 
-// 为每个角色创建独立的Chain
-const roleChains = {};
-
-function createRoleChain(roleId) {
-  const rolePrompts = {
-    aria: `你是Aria，AI酒馆的温柔调酒师。你很贴心，善于倾听...
-    
-当前对话: {history}
-用户: {input}
-Aria:`,
-    morgan: `你是Morgan，AI酒馆的资深调酒师。你经验丰富，性格直率...
-    
-当前对话: {history}
-用户: {input}
-Morgan:`
-  };
+// 初始化服务
+async function initServices() {
+  // 初始化OpenAI
+  if (process.env.OPENAI_API_KEY) {
+    openaiClient = new OpenAIClient(process.env.OPENAI_API_KEY);
+  }
   
-  const prompt = PromptTemplate.fromTemplate(rolePrompts[roleId] || rolePrompts.aria);
-  const memory = new BufferMemory();
-  
-  return new ConversationChain({ 
-    llm, 
-    prompt, 
-    memory,
-    verbose: true 
-  });
+  // 初始化MCP Client
+  mcpClient = new NativeMCPClient();
+  await mcpClient.connect();
 }
 
-// 聊天API - 超简单！
-app.post('/api/chat', async (req, res) => {
+// 对话API - MCP + OpenAI集成
+app.post('/api/chat/:roleId', async (req, res) => {
   try {
-    const { message, role = 'aria' } = req.body;
+    const { roleId } = req.params;
+    const { message, sessionId = 'default' } = req.body;
     
-    // 获取或创建角色Chain
-    if (!roleChains[role]) {
-      roleChains[role] = createRoleChain(role);
+    // 1. 通过MCP回忆记忆
+    let memories = [];
+    if (mcpClient) {
+      memories = await mcpClient.promptxRecall(message, sessionId);
     }
     
-    // 一行代码获取AI回复！
-    const response = await roleChains[role].call({ input: message });
+    // 2. 通过MCP激活角色
+    let roleResponse = null;
+    if (mcpClient) {
+      roleResponse = await mcpClient.promptxAction(roleId, message);
+    }
     
-    res.json({ message: response.response });
+    // 3. 构建消息上下文并调用OpenAI
+    const messages = buildMessageContext(roleId, message, memories);
+    const response = await openaiClient.chat(messages);
+    const aiResponse = response.choices[0].message.content;
+    
+    // 4. 保存记忆
+    if (mcpClient) {
+      await mcpClient.promptxRemember({
+        user_message: message,
+        ai_response: aiResponse,
+        role: roleId
+      }, sessionId);
+    }
+    
+    res.json({
+      success: true,
+      data: { message: aiResponse, role: roleId }
+    });
   } catch (error) {
-    console.error('LangChain错误:', error);
-    res.status(500).json({ error: '对话服务暂时不可用' });
+    console.error('对话失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '对话服务暂时不可用'
+    });
   }
 });
 
-// PromptX工具集成 - 后面Task处理
-app.post('/api/promptx/action', async (req, res) => {
-  // TODO: 集成PromptX MCP工具
-  res.json({ success: true });
-});
-
-app.listen(3001, () => {
-  console.log('🍺 AI酒馆服务器启动! - LangChain驱动');
+initServices().then(() => {
+  app.listen(3001, () => {
+    console.log('🍺 AI酒馆启动! - 纯原生+MCP驱动');
+  });
 });
 ```
 
-**安装依赖** (一条命令):
+**安装依赖** (最小化):
 ```bash
-npm install langchain @langchain/openai @langchain/core
+# 仅需3个包！
+npm install express cors dotenv
 ```
 
 ### Task 2.2.2: 实现API请求和响应处理逻辑
